@@ -15,8 +15,8 @@ var CONFIG = {
   web3formsKey: "",
 
   social: {                         // liens de vos pages ; "" = icône masquée
-    facebook: "https://www.facebook.com/achanancarrental",
+    facebook: "https://www.facebook.com/achanancar",
     instagram: "https://www.instagram.com/achanancar/",
-    tiktok: ""
+    tiktok: "https://www.tiktok.com/@achanancar"
   }
 };
