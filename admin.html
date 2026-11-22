@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Espace agence | ACHANAN CAR</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0b0b0c">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="admin">
+
+<!-- Connexion -->
+<section id="login" class="login">
+  <form id="login-form" class="login-card" novalidate>
+    <img src="assets/img/logo-dark.svg" alt="ACHANAN CAR" width="220" height="53">
+    <h1 data-t="login.title">Espace agence</h1>
+    <p class="muted" data-t="login.sub">Gestion des réservations et des voitures</p>
+    <label for="pw" data-t="login.pw">Mot de passe</label>
+    <input id="pw" type="password" autocomplete="current-password" required>
+    <button class="btn btn-gold btn-block" type="submit" data-t="login.go">Se connecter</button>
+    <p class="form-msg" id="login-msg" role="alert"></p>
+    <div class="lang-mini"><button type="button" data-lang="fr">Français</button> · <button type="button" data-lang="ar">العربية</button></div>
+    <p class="muted small"><a href="index.html" data-t="back">← Retour au site</a></p>
+  </form>
+</section>
+
+<!-- Application -->
+<div id="app" hidden>
+  <header class="ad-top">
+    <div class="ad-top-in">
+      <a href="index.html" class="ad-logo" target="_blank" rel="noopener"><img src="assets/img/logo.svg" alt="ACHANAN CAR" width="170" height="41"></a>
+      <nav class="ad-tabs" role="tablist">
+        <button type="button" role="tab" data-tab="dash" class="on" data-t="tab.dash">Tableau de bord</button>
+        <button type="button" role="tab" data-tab="bookings"><span data-t="tab.bookings">Demandes</span> <span class="pill" id="new-count" hidden>0</span></button>
+        <button type="button" role="tab" data-tab="cars" data-t="tab.cars">Voitures</button>
+      </nav>
+      <div class="ad-actions">
+        <button type="button" class="icon-btn" id="refresh" data-t-title="refresh" title="Actualiser">⟳</button>
+        <a class="icon-btn" id="sheet-link" href="#" target="_blank" rel="noopener" data-t-title="sheet" title="Ouvrir le Google Sheet">▦</a>
+        <button type="button" class="icon-btn" id="lang-toggle">ع</button>
+        <button type="button" class="icon-btn" id="logout" data-t-title="logout" title="Déconnexion">⏻</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="ad-main">
+    <!-- Tableau de bord -->
+    <section id="tab-dash" class="tab-panel">
+      <div class="kpis" id="kpis"></div>
+      <div class="ad-grid2">
+        <div class="panel"><h2 data-t="dash.moves">Départs et retours (aujourd'hui et demain)</h2><div id="moves"></div></div>
+        <div class="panel"><h2 data-t="dash.latest">Dernières demandes à traiter</h2><div id="latest"></div></div>
+      </div>
+    </section>
+
+    <!-- Demandes -->
+    <section id="tab-bookings" class="tab-panel" hidden>
+      <div class="toolbar">
+        <div class="chips" id="status-filter"></div>
+        <input type="search" id="search" data-t-ph="search" placeholder="Rechercher : nom, téléphone, référence, voiture…">
+      </div>
+      <div id="booking-list" class="list"></div>
+    </section>
+
+    <!-- Voitures -->
+    <section id="tab-cars" class="tab-panel" hidden>
+      <div class="toolbar">
+        <h2 style="margin:0" data-t="cars.title">Flotte</h2>
+        <button type="button" class="btn btn-gold btn-sm" id="add-car" data-t="cars.add">+ Ajouter une voiture</button>
+      </div>
+      <div id="car-list" class="ad-cars"></div>
+    </section>
+  </main>
+</div>
+
+<div class="modal" id="modal" hidden><div class="modal-box" role="dialog" aria-modal="true"><button type="button" class="modal-x" aria-label="Fermer">×</button><div id="modal-body"></div></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/admin.js"></script>
+</body>
+</html>
