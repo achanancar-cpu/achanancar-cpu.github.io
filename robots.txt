@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 Disallow: /admin.html
-Sitemap: https://achanancar-cpu.github.io/sitemap.xml
+Sitemap: https://achanancar.com/sitemap.xml
