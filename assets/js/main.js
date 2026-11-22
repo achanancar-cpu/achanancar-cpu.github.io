@@ -94,7 +94,7 @@
     return '<article class="car" data-id="' + esc(c.id) + '">' +
       '<div class="car-media"><span class="car-tag">' + esc(t("cat." + c.cats[0])) + '</span>' +
       '<img ' + (isIllu ? 'class="illu" ' : "") + 'src="' + esc(photos[0]) + '" alt="' + esc("Location " + name + " Casablanca") + '" loading="lazy" width="400" height="250" data-photos="' + esc(JSON.stringify(photos)) + '" data-fallback="' + illu(c) + '" data-fallback2="assets/img/cars/cat-' + esc(c.cats[0] || "eco") + '.svg">' + dots + "</div>" +
-      '<div class="car-body"><div class="car-title"><h3>' + esc(name) + "</h3><span>" + c.year + "</span></div>" +
+      '<div class="car-body"><div class="car-title"><h3>' + esc(name) + "</h3><span>" + (c.year || "") + "</span></div>" +
       '<ul class="specs">' + (c.year ? "<li>" + svg(ICON.year) + esc(t("car.year")) + " " + c.year + "</li>" : "") + "<li>" + svg(ICON.fuel) + esc(t("car.fuel." + c.fuel)) +
       "</li><li>" + svg(ICON.gear) + esc(t("car.trans." + c.trans)) + "</li><li>" + svg(ICON.seat) + esc(t("car.seats", { n: c.seats })) + "</li>" + (c.year ? "" : "<li>" + svg(ICON.year) + esc(t("cat." + c.cats[0])) + "</li>") + "</ul>" +
       '<div class="price"><span>' + esc(t("car.price")) + "</span><b>" + esc(t("cat." + c.cats[0])) + "</b></div>" +
