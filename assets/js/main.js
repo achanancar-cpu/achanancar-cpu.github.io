@@ -92,7 +92,7 @@
     }).join("") + "</div>" : "";
     var msg = t("wa.car", { car: name, year: c.year || "" }).replace(" ()", "");
     return '<article class="car" data-id="' + esc(c.id) + '">' +
-      '<div class="car-media"><span class="car-tag">' + esc(t("cat." + c.cats[0])) + '</span>' +
+      '<div class="car-media">' + (isIllu ? "" : '<div class="blur" style="background-image:url(\'' + esc(photos[0]) + '\')"></div>') + '<span class="car-tag">' + esc(t("cat." + c.cats[0])) + '</span>' + (photos.length > 1 && !isIllu ? '<span class="car-count">1/' + photos.length + "</span>" : "") +
       '<img ' + (isIllu ? 'class="illu" ' : "") + 'src="' + esc(photos[0]) + '" alt="' + esc("Location " + name + " Casablanca") + '" loading="lazy" width="400" height="250" data-photos="' + esc(JSON.stringify(photos)) + '" data-fallback="' + illu(c) + '" data-fallback2="assets/img/cars/cat-' + esc(c.cats[0] || "eco") + '.svg">' + dots + "</div>" +
       '<div class="car-body"><div class="car-title"><h3>' + esc(name) + "</h3><span>" + (c.year || "") + "</span></div>" +
       '<ul class="specs">' + (c.year ? "<li>" + svg(ICON.year) + esc(t("car.year")) + " " + c.year + "</li>" : "") + "<li>" + svg(ICON.fuel) + esc(t("car.fuel." + c.fuel)) +
@@ -115,7 +115,9 @@
       d.querySelectorAll(".chip").forEach(function (b) { var on = b.getAttribute("data-filter") === currentFilter; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); });
     }
     d.querySelectorAll(".car-media img").forEach(function (img) {
+      img.addEventListener("load", function () { if (!img.classList.contains("illu")) img.classList.toggle("portrait", img.naturalHeight > img.naturalWidth * 0.95); });
       img.addEventListener("error", function () {
+        var bl = img.parentNode.querySelector(".blur"); if (bl) bl.remove();
         var f1 = img.getAttribute("data-fallback"), f2 = img.getAttribute("data-fallback2");
         img.classList.add("illu");
         if (img.src.indexOf(f1) === -1 && img.src.indexOf(f2) === -1) img.src = f1;
@@ -127,7 +129,9 @@
     var dot = e.target.closest && e.target.closest(".car-dots button");
     if (dot) {
       var media = dot.closest(".car-media"), img = media.querySelector("img"), photos = JSON.parse(img.getAttribute("data-photos"));
-      img.classList.remove("illu"); img.src = photos[+dot.getAttribute("data-i")];
+      var i = +dot.getAttribute("data-i"); img.classList.remove("illu"); img.src = photos[i];
+      var bl = media.querySelector(".blur"); if (bl) bl.style.backgroundImage = "url('" + photos[i] + "')";
+      var cn = media.querySelector(".car-count"); if (cn) cn.textContent = (i + 1) + "/" + photos.length;
       media.querySelectorAll(".car-dots button").forEach(function (b) { b.classList.toggle("on", b === dot); });
     }
     var chip = e.target.closest && e.target.closest(".chip");
@@ -145,6 +149,67 @@
     var io = new IntersectionObserver(function (es) { es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } }); }, { threshold: .12 });
     rev.forEach(function (el) { io.observe(el); });
   } else rev.forEach(function (el) { el.classList.add("in"); });
+
+  // ---------- Vidéos (lecture auto en silence, son au toucher) ----------
+  var ICO_ON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05A4.5 4.5 0 0 0 16.5 12zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06A9 9 0 0 0 14 3.23z"/></svg>';
+  var ICO_OFF = null;
+  var reels = d.querySelectorAll("[data-reel]");
+  reels.forEach(function (r) {
+    var v = r.querySelector("video"), b = r.querySelector("[data-sound]");
+    if (!v) return;
+    if (b && !ICO_OFF) ICO_OFF = b.innerHTML;
+    function setSound(on) {
+      reels.forEach(function (o) { var ov = o.querySelector("video"), ob = o.querySelector("[data-sound]"); if (ov && o !== r) { ov.muted = true; if (ob) ob.innerHTML = ICO_OFF; } });
+      v.muted = !on; if (b) b.innerHTML = on ? ICO_ON : ICO_OFF;
+      if (on) { v.currentTime = 0; var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+    }
+    r.addEventListener("click", function (e) { e.preventDefault(); setSound(v.muted); });
+  });
+  if ("IntersectionObserver" in window && reels.length) {
+    var vio = new IntersectionObserver(function (es) {
+      es.forEach(function (en) {
+        var v = en.target.querySelector("video"); if (!v) return;
+        if (en.isIntersecting) { if (v.preload === "none") v.preload = "auto"; var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+        else v.pause();
+      });
+    }, { threshold: .35 });
+    reels.forEach(function (r) { vio.observe(r); });
+  }
+
+  // ---------- Galerie : visionneuse ----------
+  var gal = d.getElementById("gallery");
+  if (gal) {
+    var figs = [].slice.call(gal.querySelectorAll("figure[data-lb]")), cur = 0, lb = null;
+    function show(i) {
+      cur = (i + figs.length) % figs.length;
+      var f = figs[cur];
+      lb.querySelector("img").src = f.getAttribute("data-lb");
+      lb.querySelector("img").alt = f.querySelector("img").alt;
+      lb.querySelector("p").textContent = (f.querySelector("figcaption").textContent || "") + "  ·  " + (cur + 1) + " / " + figs.length;
+    }
+    function close() { if (lb) { lb.remove(); lb = null; d.body.style.overflow = ""; } }
+    figs.forEach(function (f, i) {
+      f.setAttribute("tabindex", "0");
+      function open() {
+        lb = d.createElement("div"); lb.className = "lightbox"; lb.setAttribute("role", "dialog");
+        lb.innerHTML = '<img alt=""><p></p><button type="button" class="lb-x" aria-label="Fermer">×</button><button type="button" class="lb-prev" aria-label="Précédente">‹</button><button type="button" class="lb-next" aria-label="Suivante">›</button>';
+        d.body.appendChild(lb); d.body.style.overflow = "hidden"; show(i);
+        lb.addEventListener("click", function (e) {
+          if (e.target.classList.contains("lb-prev")) show(cur - 1);
+          else if (e.target.classList.contains("lb-next")) show(cur + 1);
+          else if (e.target.tagName !== "IMG") close();
+        });
+      }
+      f.addEventListener("click", open);
+      f.addEventListener("keydown", function (e) { if (e.key === "Enter") open(); });
+    });
+    d.addEventListener("keydown", function (e) {
+      if (!lb) return;
+      if (e.key === "Escape") close();
+      if (e.key === "ArrowRight") show(cur + 1);
+      if (e.key === "ArrowLeft") show(cur - 1);
+    });
+  }
 
   // ---------- Dates ----------
   function pad(n) { return (n < 10 ? "0" : "") + n; }
